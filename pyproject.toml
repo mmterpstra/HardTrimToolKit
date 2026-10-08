@@ -15,6 +15,13 @@ readme = {file = ["README.md"], content-type = "text/md"}
 [tool.setuptools.packages.find]
 where = ["src"]
 
+[tool.pytest.ini_options]
+testpaths = ["tests/integration"]
+addopts = "-ra"
+log_cli = true
+log_cli_level = "INFO"
+log_cli_format = "%(asctime)s %(levelname)s %(name)s: %(message)s"
+
 [project]
 name = "hardtrimtoolkit"
 dynamic = ["version", "readme"]
