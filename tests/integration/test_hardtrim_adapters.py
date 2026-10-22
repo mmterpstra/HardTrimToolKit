@@ -219,5 +219,5 @@ def test_hardtrim_cli(caplog):
     for res, exp in zip(test_result, expected_result):
         assert res==exp
 
-    os.remove(testinputbam)
-    os.remove(testoutbam)
+    #os.remove(testinputbam)
+    #os.remove(testoutbam)

@@ -15,7 +15,7 @@ def main():
 def hardtrim_adapters_cli():
     start_time = time.time()
     # Configure logging
-    logging.basicConfig(level=logging.INFO, format='# %(asctime)s ##INFO## %(message)s')
+    logging.basicConfig(level=logging.INFO, format='# %(asctime)s # %(filename)s.%(funcName)s # %(levelname)s # %(message)s')
     logging.info("Started "+sys.argv[0]+" version "+version+".")
     logging.info("WARNING experimental version also outside of the fields position/cigar/seq and qual it does not update correctly.")
     parser = argparse.ArgumentParser(
@@ -28,8 +28,8 @@ def hardtrim_adapters_cli():
     parser.add_argument('--output',help='Output bam. Should support "-" as /dev/stdout', required=True)
     parser.add_argument('--input', help='Input bam. Should support "-" as /dev/stdin', required=True )
     parser.add_argument('--ubam-out',help='Write uncompressed output bam. Helpful for speeding up on stream processing',
-        type=bool, required=False, default=False )
-    parser.add_argument('--ubam-in',help='Read uncompressed input bam.', type=bool, required=False, default=False )
+         action='store_true', required=False, default=False )
+    parser.add_argument('--ubam-in',help='Read uncompressed input bam.',  action='store_true', required=False, default=False )
     parser.add_argument('--trimming-tag',help='Tag guide in trimmings. Default is XT for gatk compatibility', type=str, required=False, default="XT")
     parser.add_argument('--original-alignment-tag',help='Tag to move original alignment to. Default is XO. Not the same format as OA.' \
         ' format as : "chr,pos,cigar,seq,qual;"', type=str, required=False, default="XO")
@@ -82,7 +82,7 @@ def hardtrim_adapters(args):
     #assume aligned unsorted file
     inbam = pysam.AlignmentFile(args.input, readmode, check_sq=True, require_index=False)
     outheader = inbam.header.to_dict()
-    outheader['PG'] = [{'ID': '1','PN':'hardtrim_adapters','DS':'External trimming tool integration','VN':'version'+version,'CL':' '.join(sys.argv)}]
+    outheader['PG'] = [{'ID': '1','PN':'hardtrimadapters','DS':'Hard removal of trimmed adapter sequence in aligned bams','VN':'version'+version,'CL':' '.join(sys.argv)}]
     #outheader['HD']['SO'] processing changes based on this value coordinate, queryname or unsorted
     writemode = 'wb'
     if args.ubam_out:
@@ -141,6 +141,11 @@ def hardtrim_adapters(args):
                 append_hardtrim = args.append_hardtrim)
             for record in recordbuffer:
                 record.set_tag(args.trimming_tag,None)
+                if record.is_read1:
+                    trimmed_count_first_of_pair=trimmed_count_first_of_pair+1
+                elif record.is_read2:
+                    trimmed_count_second_of_pair=trimmed_count_second_of_pair+1
+
                 outfile.write(record)
             #push new
             recordbuffer = [bamrecord]
@@ -154,9 +159,15 @@ def hardtrim_adapters(args):
             append_hardtrim = args.append_hardtrim)
         for record in recordbuffer:
             record.set_tag(args.trimming_tag,None)
+            if record.is_read1:
+                trimmed_count_first_of_pair=trimmed_count_first_of_pair+1
+            elif record.is_read2:
+                trimmed_count_second_of_pair=trimmed_count_second_of_pair+1
             outfile.write(record)
-
-    return(0,0,0)
+    count=recordno
+    inbam.close()
+    outfile.close()
+    return(count,trimmed_count_first_of_pair,trimmed_count_second_of_pair)
 
 def revert_hardtrim_adapters_cli():
     start_time = time.time()
