@@ -25,18 +25,19 @@ log_cli_format = "%(asctime)s %(levelname)s %(name)s: %(message)s"
 [project]
 name = "hardtrimtoolkit"
 dynamic = ["version", "readme"]
+license = "GPL-3.0-or-later"
 authors = [
   { name="mmterpstra", email="mmterpstra@users.noreply.github.com" },
 ]
 description = "Small toolkit to hardtrim bam reads based on the (markIlluminaAdapters) trimming tag."
 requires-python = ">=3.6"
-dependencies = [ "pysam>=0.21.0" ]
+dependencies = [
+  "pysam>=0.21.0"
+]
 classifiers = [
     "Programming Language :: Python :: 3",
-    "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
 ]
-
 
 
 [project.urls]
