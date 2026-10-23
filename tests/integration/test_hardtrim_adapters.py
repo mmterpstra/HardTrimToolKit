@@ -202,7 +202,7 @@ def test_hardtrim_cli(caplog):
         ubam_in=False,
         trimming_tag="XT",
         original_alignment_tag="XO",
-        append_hardtrim=True,
+        omit_hardtrim=False,
     )
     hardtrim_adapters(args)
 

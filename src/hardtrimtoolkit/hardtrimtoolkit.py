@@ -33,9 +33,8 @@ def hardtrim_adapters_cli():
     parser.add_argument('--trimming-tag',help='Tag guide in trimmings. Default is XT for gatk compatibility', type=str, required=False, default="XT")
     parser.add_argument('--original-alignment-tag',help='Tag to move original alignment to. Default is XO. Not the same format as OA.' \
         ' format as : "chr,pos,cigar,seq,qual;"', type=str, required=False, default="XO")
-    parser.add_argument('--append-hardtrim',help='Option to add in the hardtrim in the cigar.e.g. ' \
-        'trim 101M + XT 10 -> 91M10H instead of 91M', type=bool, required=False, default=False)
-
+    parser.add_argument('--omit-hardtrim',help='Option to remove in the hardtrim in the cigar.e.g. ' \
+        'trim 101M + XT 10 -> 91M instead of 91M10H', action='store_true', required=False, default=False )
     parser.add_argument('--version', action='version', version='%(prog)s '+version)
 
 
@@ -122,7 +121,7 @@ def hardtrim_adapters(args):
                     bamrecords = recordbuffer,
                     trimming_tag = args.trimming_tag,
                     original_alignment_tag=args.original_alignment_tag,
-                    append_hardtrim = args.append_hardtrim)
+                    append_hardtrim =  not(args.omit_hardtrim))
                 for record in recordbuffer:
                     record.set_tag(args.trimming_tag,None)
                     outfile.write(record)
@@ -138,7 +137,7 @@ def hardtrim_adapters(args):
                 bamrecords = recordbuffer,
                 trimming_tag = args.trimming_tag,
                 original_alignment_tag=args.original_alignment_tag,
-                append_hardtrim = args.append_hardtrim)
+                append_hardtrim = not(args.omit_hardtrim))
             for record in recordbuffer:
                 record.set_tag(args.trimming_tag,None)
                 if record.is_read1:
@@ -156,7 +155,7 @@ def hardtrim_adapters(args):
             bamrecords = recordbuffer,
             trimming_tag = args.trimming_tag,
             original_alignment_tag=args.original_alignment_tag,
-            append_hardtrim = args.append_hardtrim)
+            append_hardtrim =  not(args.omit_hardtrim))
         for record in recordbuffer:
             record.set_tag(args.trimming_tag,None)
             if record.is_read1:
